@@ -1,0 +1,10 @@
+fastapi[standard]
+uvicorn[standard]
+pydantic-settings
+cassandra-driver
+neo4j
+motor
+asyncpg
+redis[hiredis]
+prometheus-fastapi-instrumentator
+python-dotenv
