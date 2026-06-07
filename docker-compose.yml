@@ -26,7 +26,7 @@ services:
         condition: service_healthy
     volumes:
       - ./cql/init.cql:/init.cql:ro
-    command: ["bash", "-lc", "cqlsh timeseries-db 9042 -f /init.cql"]
+    command: ["bash", "-lc", "echo 'Waiting for Cassandra CQL...'; until /opt/cassandra/bin/cqlsh timeseries-db 9042 -e 'DESCRIBE CLUSTER'; do echo 'Cassandra not ready yet...'; sleep 5; done; echo 'Applying Cassandra schema...'; /opt/cassandra/bin/cqlsh timeseries-db 9042 -f /init.cql"]
     restart: "no"
 
   graph-db:
@@ -114,8 +114,6 @@ services:
     depends_on:
       timeseries-db:
         condition: service_healthy
-      cassandra-init:
-        condition: service_completed_successfully
       graph-db:
         condition: service_healthy
       catalog-db:
@@ -124,6 +122,9 @@ services:
         condition: service_healthy
       cache:
         condition: service_healthy
+      cassandra-init:
+        condition: service_completed_successfully
+    command: ["bash", "-lc", "echo 'Waiting for database ports...'; for target in timeseries-db:9042 graph-db:7687 catalog-db:27017 billing-db:5432 cache:6379; do host=$${target%:*}; port=$${target#*:}; until timeout 2 bash -c \"</dev/tcp/$$host/$$port\" 2>/dev/null; do echo \"Waiting for $$target...\"; sleep 2; done; echo \"$$target is reachable\"; done; exec uvicorn api.main:app --host 0.0.0.0 --port 8000"]
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
       interval: 20s
