@@ -8,3 +8,4 @@ asyncpg
 redis[hiredis]
 prometheus-fastapi-instrumentator
 python-dotenv
+pymongo
