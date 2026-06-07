@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from typing import Any
 from uuid import UUID
 
@@ -69,6 +69,32 @@ class TimeBucketReading(BaseModel):
     quality_flag: int
 
 
-def normalize_cassandra_row(row: dict[str, Any]) -> dict[str, Any]:
+def normalize_cassandra_value(value: Any) -> Any:
+    """Convert Cassandra driver values into JSON/Pydantic-friendly Python values."""
+    if value is None:
+        return None
+
+    if isinstance(value, (datetime, date, UUID)):
+        return value
+
+    # Cassandra DATE may be returned as cassandra.util.Date, e.g. Date(20605).
+    days_from_epoch = getattr(value, "days_from_epoch", None)
+    if days_from_epoch is not None:
+        return date(1970, 1, 1) + timedelta(days=int(days_from_epoch))
+
+    # Fallback for other date-like objects.
+    value_date = getattr(value, "date", None)
+    if callable(value_date):
+        return value_date()
+
+    return value
+
+
+def normalize_cassandra_row(row: Any) -> dict[str, Any]:
     """Return a JSON/Pydantic-friendly copy without mutating driver row objects."""
-    return dict(row)
+    if hasattr(row, "_asdict"):
+        data = row._asdict()
+    else:
+        data = dict(row)
+
+    return {key: normalize_cassandra_value(value) for key, value in data.items()}
