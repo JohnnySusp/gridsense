@@ -1,0 +1,61 @@
+query,database,run,latency_ms,result_count
+firmware_version starts with 3.,MongoDB,1,1.5431,10
+firmware_version starts with 3.,MongoDB,2,1.7697,10
+firmware_version starts with 3.,MongoDB,3,1.3374,10
+firmware_version starts with 3.,MongoDB,4,1.4389,10
+firmware_version starts with 3.,MongoDB,5,1.2007,10
+firmware_version starts with 3.,MongoDB,6,1.1772,10
+firmware_version starts with 3.,MongoDB,7,1.097,10
+firmware_version starts with 3.,MongoDB,8,1.1931,10
+firmware_version starts with 3.,MongoDB,9,1.1678,10
+firmware_version starts with 3.,MongoDB,10,1.1899,10
+firmware_version starts with 3.,PostgreSQL JSONB,1,1.475,10
+firmware_version starts with 3.,PostgreSQL JSONB,2,2.4612,10
+firmware_version starts with 3.,PostgreSQL JSONB,3,1.5363,10
+firmware_version starts with 3.,PostgreSQL JSONB,4,1.2106,10
+firmware_version starts with 3.,PostgreSQL JSONB,5,1.3685,10
+firmware_version starts with 3.,PostgreSQL JSONB,6,1.3712,10
+firmware_version starts with 3.,PostgreSQL JSONB,7,1.277,10
+firmware_version starts with 3.,PostgreSQL JSONB,8,1.2391,10
+firmware_version starts with 3.,PostgreSQL JSONB,9,1.2023,10
+firmware_version starts with 3.,PostgreSQL JSONB,10,1.2176,10
+smart_meter rated_voltage > 230,MongoDB,1,0.8673,7
+smart_meter rated_voltage > 230,MongoDB,2,0.978,7
+smart_meter rated_voltage > 230,MongoDB,3,0.8438,7
+smart_meter rated_voltage > 230,MongoDB,4,1.3318,7
+smart_meter rated_voltage > 230,MongoDB,5,1.1384,7
+smart_meter rated_voltage > 230,MongoDB,6,1.0125,7
+smart_meter rated_voltage > 230,MongoDB,7,1.0194,7
+smart_meter rated_voltage > 230,MongoDB,8,1.018,7
+smart_meter rated_voltage > 230,MongoDB,9,1.1301,7
+smart_meter rated_voltage > 230,MongoDB,10,1.1195,7
+smart_meter rated_voltage > 230,PostgreSQL JSONB,1,0.8973,7
+smart_meter rated_voltage > 230,PostgreSQL JSONB,2,0.8981,7
+smart_meter rated_voltage > 230,PostgreSQL JSONB,3,1.1363,7
+smart_meter rated_voltage > 230,PostgreSQL JSONB,4,0.897,7
+smart_meter rated_voltage > 230,PostgreSQL JSONB,5,0.8732,7
+smart_meter rated_voltage > 230,PostgreSQL JSONB,6,0.876,7
+smart_meter rated_voltage > 230,PostgreSQL JSONB,7,1.1472,7
+smart_meter rated_voltage > 230,PostgreSQL JSONB,8,0.8928,7
+smart_meter rated_voltage > 230,PostgreSQL JSONB,9,0.8449,7
+smart_meter rated_voltage > 230,PostgreSQL JSONB,10,1.0926,7
+count grouped by type,MongoDB,1,1.0047,3
+count grouped by type,MongoDB,2,0.86,3
+count grouped by type,MongoDB,3,0.7004,3
+count grouped by type,MongoDB,4,0.4044,3
+count grouped by type,MongoDB,5,0.3685,3
+count grouped by type,MongoDB,6,0.8913,3
+count grouped by type,MongoDB,7,0.7258,3
+count grouped by type,MongoDB,8,0.6832,3
+count grouped by type,MongoDB,9,0.6793,3
+count grouped by type,MongoDB,10,0.7081,3
+count grouped by type,PostgreSQL JSONB,1,0.1734,3
+count grouped by type,PostgreSQL JSONB,2,0.146,3
+count grouped by type,PostgreSQL JSONB,3,0.19,3
+count grouped by type,PostgreSQL JSONB,4,0.2998,3
+count grouped by type,PostgreSQL JSONB,5,0.1739,3
+count grouped by type,PostgreSQL JSONB,6,0.1447,3
+count grouped by type,PostgreSQL JSONB,7,0.1326,3
+count grouped by type,PostgreSQL JSONB,8,0.1342,3
+count grouped by type,PostgreSQL JSONB,9,0.1302,3
+count grouped by type,PostgreSQL JSONB,10,0.1261,3

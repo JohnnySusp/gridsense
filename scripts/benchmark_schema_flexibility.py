@@ -248,11 +248,11 @@ def main():
             ),
         },
         {
-            "name": "SmartMeter rated_voltage > 230",
+            "name": "smart_meter rated_voltage > 230",
             "mongo": lambda: list(
                 mongo_collection.find(
                     {
-                        "type": "SmartMeter",
+                        "type": "smart_meter",
                         "metadata.rated_voltage": {"$gt": 230},
                     },
                     {"_id": 0},
@@ -263,7 +263,7 @@ def main():
                 f"""
                 SELECT equipment_id, type, metadata
                 FROM {args.postgres_table}
-                WHERE type = 'SmartMeter'
+                WHERE type = 'smart_meter'
                   AND metadata ? 'rated_voltage'
                   AND (metadata->>'rated_voltage') ~ '^[0-9]+(\\.[0-9]+)?$'
                   AND (metadata->>'rated_voltage')::numeric > 230;

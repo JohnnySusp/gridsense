@@ -1,0 +1,4 @@
+consistency,elapsed_seconds,attempted,successful,errors,events_per_second,p50_ms,p95_ms,max_ms,error_types
+ONE,5.001174,20786,20786,0,4156.224419,1.130571,1.913724,10.896557,none
+LOCAL_QUORUM,5.000983,20298,20298,0,4058.802237,1.154199,1.959765,11.668292,none
+ALL,5.001975,19111,19111,0,3820.691204,1.235956,2.085918,12.323693,none

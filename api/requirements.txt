@@ -10,3 +10,4 @@ prometheus-fastapi-instrumentator
 python-dotenv
 pymongo
 psycopg2-binary
+matplotlib
