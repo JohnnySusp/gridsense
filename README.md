@@ -321,8 +321,7 @@ Expected result: one smart-meter equipment document with `asset_id` equal to `SM
 The seeded sensor data is for `2026-06-01`, so the day parameter is included in the sensor query.
 
 ```bash
-curl -s "http://localhost:8000/sensors/SENSOR_001/readings?day=2026-06-01&limit=5" \
-  | python3 -m json.tool
+curl -s "http://localhost:8000/sensors/SENSOR_001/readings?day=2026-06-01&limit=5" | python3 -m json.tool
 ```
 
 Expected result: five readings for `SENSOR_001`, with `bucket_day` equal to `2026-06-01`.
@@ -330,8 +329,7 @@ Expected result: five readings for `SENSOR_001`, with `bucket_day` equal to `202
 Test the bucketed cross-network query table:
 
 ```bash
-curl -s "http://localhost:8000/sensors/readings/by-bucket?bucket_start=2026-06-01T00:00:00Z&shard=0&limit=5" \
-  | python3 -m json.tool
+curl -s "http://localhost:8000/sensors/readings/by-bucket?bucket_start=2026-06-01T00:00:00Z&shard=0&limit=5" | python3 -m json.tool
 ```
 
 Expected result: five readings from the bucketed sensor table.
@@ -376,9 +374,7 @@ Expected result: valid JSON arrays. Empty arrays are acceptable if no alerts hav
 ### 20. Check Prometheus metrics after endpoint traffic
 
 ```bash
-curl -s http://localhost:8000/metrics \
-  | grep -E "http_requests_total|http_request_duration_seconds" \
-  | head -160
+curl -s http://localhost:8000/metrics | grep -E "http_requests_total|http_request_duration_seconds" | head -160
 ```
 
 Confirm selected endpoints have successful `2xx` metrics:
@@ -396,8 +392,7 @@ curl -s http://localhost:8000/metrics | grep 'alerts/active'
 Confirm that no server-side API errors were recorded:
 
 ```bash
-curl -s http://localhost:8000/metrics \
-  | grep 'status="5xx"' || echo "No 5xx recorded"
+curl -s http://localhost:8000/metrics | grep 'status="5xx"' || echo "No 5xx recorded"
 ```
 
 Expected result:
