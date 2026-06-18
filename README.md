@@ -401,7 +401,91 @@ Expected result:
 No 5xx recorded
 ```
 
-### 21. Optional cleanup after testing
+## Benchmark Tests
+
+The following benchmarks measure Cassandra write consistency performance, Neo4j graph traversal latency, Redis cache effectiveness, and MongoDB versus PostgreSQL JSONB schema flexibility.
+
+The repository already includes a `results` directory and benchmark output files. It is advised to empty the `results` folder before saving new benchmark results:
+
+```bash
+rm -f results/*
+```
+
+Optionally, to check that the benchmark scripts compile:
+
+```bash
+docker compose exec api python -m py_compile scripts/*.py
+```
+
+### 1. Cassandra write consistency benchmark
+
+This benchmark measures Cassandra write throughput and latency under different consistency levels.
+
+```bash
+docker compose exec api python scripts/benchmark_cassandra_write_consistency.py \
+  --host timeseries-db \
+  --keyspace gridsense \
+  --levels ONE,LOCAL_QUORUM,ALL \
+  --duration-seconds 30 \
+  --warmup-seconds 3 \
+  --concurrency 64 \
+  --sensor-count 100 \
+  --csv results/cassandra_write_consistency.csv \
+  --cleanup
+```
+
+### 2. Neo4j graph traversal depth benchmark
+
+This benchmark measures the latency of the fault-impact traversal endpoint while varying `max_depth` from 1 to 8.
+
+```bash
+docker compose exec api python scripts/benchmark_graph_depth.py \
+  --iterations 30 \
+  --warmup 5 \
+  --output-dir results
+```
+
+### 3. Redis summary cache benchmark
+
+This benchmark compares warm-cache and cold-cache latency for the sensor summary endpoint.
+
+```bash
+docker compose exec api python scripts/benchmark_redis_summary_cache.py \
+  --api-url http://localhost:8000 \
+  --sensor-id SENSOR_001 \
+  --requests-per-batch 500 \
+  --cold-mode delete-each \
+  --redis-url redis://cache:6379/0 \
+  --csv results/redis_summary_cache.csv
+```
+
+### 4. MongoDB vs PostgreSQL JSONB schema flexibility benchmark
+
+This benchmark inserts the same 30 equipment records into MongoDB and PostgreSQL JSONB, then compares query latency for flexible metadata queries.
+
+```bash
+docker compose exec api python scripts/benchmark_schema_flexibility.py \
+  --source-collection equipment \
+  --runs 10 \
+  --warmup 3 \
+  --output-dir results
+```
+
+### Expected benchmark result files
+
+After the completion of all benchmarks, the `results` directory should contain the following files:
+
+```text
+results/cassandra_write_consistency.csv
+results/redis_summary_cache.csv
+results/graph_depth_latency_raw.csv
+results/graph_depth_latency_summary.csv
+results/graph_depth_latency.png
+results/schema_flexibility_raw.csv
+results/schema_flexibility_summary.csv
+```
+
+## Optional cleanup after testing
 
 Stop containers while keeping database volumes:
 

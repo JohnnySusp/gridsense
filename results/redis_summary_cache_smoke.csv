@@ -1,3 +1,0 @@
-batch,requests,ok,errors,cache_hit_rate_pct,p50_ms,p95_ms,p99_ms,min_ms,max_ms,first_error
-warm_cache,20,20,0,100.0,0.9970005,1.42428945,1.43194189,0.798109,1.433855,
-cold_cache,20,20,0,0.0,2.5108215,3.6795401,3.96841762,1.726345,4.040637,
