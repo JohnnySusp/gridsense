@@ -72,12 +72,6 @@ The real `.env` file is intentionally not committed. It can be created from `.en
 cp .env.example .env
 ```
 
-For local testing only, replace placeholder values with a temporary password:
-
-```bash
-sed -i 's/replace_me/placeholder_password/g' .env
-```
-
 Optionally, you can confirm that `.env` exists but is not tracked by Git:
 
 ```bash
@@ -116,7 +110,7 @@ Expected result:
 * The API container is running or healthy.
 * `cassandra-init` has exited successfully.
 
-Check the API startup logs:
+Optionally, you can check the API startup logs:
 
 ```bash
 docker compose logs --tail=120 api
@@ -157,7 +151,7 @@ Run the seed orchestrator:
 docker compose exec api python scripts/seed.py
 ```
 
-Run it the command above a second time, to confirm idempotence.
+The command above can be run a second time to confirm idempotence.
 
 The second run should not increase the logical dataset size.
 
@@ -301,10 +295,9 @@ Expected result:
 PONG
 ```
 
-### 14. Test API health and metrics
+### 14. Test API metrics
 
 ```bash
-curl -s http://localhost:8000/health | python3 -m json.tool
 curl -s http://localhost:8000/metrics | head -30
 ```
 
@@ -405,7 +398,7 @@ No 5xx recorded
 
 The following benchmarks measure Cassandra write consistency performance, Neo4j graph traversal latency, Redis cache effectiveness, and MongoDB versus PostgreSQL JSONB schema flexibility.
 
-The repository already includes a `results` directory and benchmark output files. It is advised to empty the `results` folder before saving new benchmark results:
+The repository already includes a `results` directory and benchmark output files. Before generating new benchmark results, empty the `results` folder:
 
 ```bash
 rm -f results/*
@@ -477,10 +470,10 @@ After the completion of all benchmarks, the `results` directory should contain t
 
 ```text
 results/cassandra_write_consistency.csv
-results/redis_summary_cache.csv
+results/graph_depth_latency.png
 results/graph_depth_latency_raw.csv
 results/graph_depth_latency_summary.csv
-results/graph_depth_latency.png
+results/redis_summary_cache.csv
 results/schema_flexibility_raw.csv
 results/schema_flexibility_summary.csv
 ```
