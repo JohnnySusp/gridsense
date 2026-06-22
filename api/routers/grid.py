@@ -189,7 +189,10 @@ async def list_feeders(
 async def fault_impact(
     node_id: str,
     neo4j: Annotated[Neo4jStore, Depends(get_neo4j)],
-    depth: Annotated[int, Query(ge=1, le=10)] = 6,
+    max_depth: Annotated[
+        int,
+        Query(ge=1, le=10, description="Maximum downstream traversal depth in graph hops"),
+    ] = 6,
     limit: Annotated[int, Query(ge=1, le=500)] = 100,
 ) -> list[dict[str, Any]]:
     if not await _node_exists(neo4j, node_id):
@@ -198,7 +201,7 @@ async def fault_impact(
     cypher = f"""
         MATCH (failed)
         WHERE {_node_identity("failed")} = $node_id
-        MATCH (failed)-[:{_RELATIONSHIP_TYPES}*1..{depth}]->(affected)
+        MATCH (failed)-[:{_RELATIONSHIP_TYPES}*1..{max_depth}]->(affected)
         RETURN DISTINCT {_node_identity("affected")} AS node_id,
                labels(affected) AS labels,
                properties(affected) AS properties

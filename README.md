@@ -359,7 +359,7 @@ curl -s "http://localhost:8000/sensors/readings/by-bucket?bucket_start=2026-06-0
 ### 17. Test Neo4j-backed graph endpoints
 
 ```bash
-curl -s http://localhost:8000/grid/fault-impact/SS_001 | python3 -m json.tool
+curl -s "http://localhost:8000/grid/fault-impact/SS_001?max_depth=3" | python3 -m json.tool
 curl -s http://localhost:8000/grid/restore-paths/SS_001 | python3 -m json.tool
 curl -s http://localhost:8000/grid/nodes/SS_001 | python3 -m json.tool
 curl -s http://localhost:8000/grid/meters/SM_001/upstream | python3 -m json.tool
@@ -371,6 +371,8 @@ Expected result:
 * `restore-paths/SS_001` may return an empty list if no alternative path exists.
 * `nodes/SS_001` returns the substation node.
 * `meters/SM_001/upstream` returns a path from the grid supply point to the smart meter.
+
+By default, a fault-impact API call for a given node returns downstream affected nodes up to a maximum traversal depth of 6 hops. In this example, we explicitly limit the traversal to a maximum of 3 hops.
 
 When a returned node represents an equipment asset such as a grid supply point, substation, transformer, or smart meter, the same value can be used as `/equipment/{asset_id}` to retrieve its full MongoDB catalogue document.
 
