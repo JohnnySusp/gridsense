@@ -118,7 +118,7 @@ def maybe_write_chart(summary_rows, output_dir):
         import matplotlib.pyplot as plt
     except ImportError:
         print("matplotlib is not installed, so the PNG chart was skipped.")
-        print("The CSV files were still written and can be used to make the report chart.")
+        print("The CSV files were still written.")
         return
 
     depths = [row["depth"] for row in summary_rows]
@@ -394,7 +394,7 @@ def main():
 
     maybe_write_chart(summary_rows, output_dir)
 
-    print("\nMarkdown table for the report:\n")
+    print("\nMarkdown summary table:\n")
     print("| max_depth | affected nodes | median latency (ms) | P95 latency (ms) |")
     print("|---:|---:|---:|---:|")
     for row in summary_rows:

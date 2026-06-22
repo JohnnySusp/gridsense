@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import os
 from datetime import datetime, timezone
 from pymongo import MongoClient, ReplaceOne, ASCENDING

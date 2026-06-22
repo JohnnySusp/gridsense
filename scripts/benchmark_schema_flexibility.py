@@ -381,7 +381,7 @@ def main():
     print(f"\nWrote raw results: {raw_path}")
     print(f"Wrote summary results: {summary_path}")
 
-    print("\nMarkdown table for the report:\n")
+    print("\nMarkdown summary table:\n")
     print("| Query | MongoDB mean (ms) | PostgreSQL JSONB mean (ms) | MongoDB rows | PostgreSQL rows |")
     print("|---|---:|---:|---:|---:|")
     for row in summary_rows:

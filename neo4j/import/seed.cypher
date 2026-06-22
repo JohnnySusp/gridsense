@@ -1,12 +1,3 @@
-// -----------------------------------------------------------------------------
-// GridSense full Neo4j seed extension
-// Creates at least:
-// - 10 Substations
-// - 40 Transformers
-// - 200 SmartMeters
-// - FEEDS, SUPPLIES, and CONNECTS_TO relationships
-// -----------------------------------------------------------------------------
-
 CREATE CONSTRAINT grid_supply_point_node_id IF NOT EXISTS
 FOR (n:GridSupplyPoint)
 REQUIRE n.node_id IS UNIQUE;
@@ -24,6 +15,7 @@ FOR (n:SmartMeter)
 REQUIRE n.node_id IS UNIQUE;
 
 // Root supply point
+
 MERGE (gsp:GridSupplyPoint {node_id: "GSP_001"})
 SET
   gsp.name = "North Grid Supply Point",
@@ -31,9 +23,8 @@ SET
   gsp.voltage_kV = 132,
   gsp.status = "ACTIVE";
 
-// -----------------------------------------------------------------------------
 // 10 substations
-// -----------------------------------------------------------------------------
+
 UNWIND range(1, 10) AS i
 WITH
   i,
@@ -47,6 +38,7 @@ SET
   s.asset_class = "substation";
 
 // Connect GSP to each substation
+
 UNWIND range(1, 10) AS i
 WITH
   i,
@@ -61,9 +53,8 @@ SET
   r.status = "ENERGIZED",
   r.protection_zone = "ZONE_" + toString(((i - 1) % 3) + 1);
 
-// -----------------------------------------------------------------------------
 // 40 transformers: 4 per substation
-// -----------------------------------------------------------------------------
+
 UNWIND range(1, 40) AS i
 WITH
   i,
@@ -95,9 +86,8 @@ SET
   r.max_load_kW = 450 + (i * 5),
   r.status = "ENERGIZED";
 
-// -----------------------------------------------------------------------------
 // 200 smart meters: 5 per transformer
-// -----------------------------------------------------------------------------
+
 UNWIND range(1, 200) AS i
 WITH
   i,
