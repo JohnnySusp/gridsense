@@ -44,11 +44,12 @@ def seed_neo4j() -> None:
 
             counts = session.run(
                 """
-                MATCH (s:Substation) WITH count(s) AS substations
-                MATCH (t:Transformer) WITH substations, count(t) AS transformers
-                MATCH (m:SmartMeter) WITH substations, transformers, count(m) AS smart_meters
+                MATCH (g:GridSupplyPoint) WITH count(g) AS grid_supply_points
+                MATCH (s:Substation) WITH grid_supply_points, count(s) AS substations
+                MATCH (t:Transformer) WITH grid_supply_points, substations, count(t) AS transformers
+                MATCH (m:SmartMeter) WITH grid_supply_points, substations, transformers, count(m) AS smart_meters
                 MATCH ()-[r]->()
-                RETURN substations, transformers, smart_meters, count(r) AS relationships
+                RETURN grid_supply_points, substations, transformers, smart_meters, count(r) AS relationships
                 """
             ).single()
 
