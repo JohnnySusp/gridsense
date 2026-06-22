@@ -170,17 +170,19 @@ docker compose exec graph-db cypher-shell \
   -u "$NEO4J_USER" \
   -p "$NEO4J_PASSWORD" \
   "
-  MATCH (s:Substation) WITH count(s) AS substations
-  MATCH (t:Transformer) WITH substations, count(t) AS transformers
-  MATCH (m:SmartMeter) WITH substations, transformers, count(m) AS smart_meters
+  MATCH (g:GridSupplyPoint) WITH count(g) AS grid_supply_points
+  MATCH (s:Substation) WITH grid_supply_points, count(s) AS substations
+  MATCH (t:Transformer) WITH grid_supply_points, substations, count(t) AS transformers
+  MATCH (m:SmartMeter) WITH grid_supply_points, substations, transformers, count(m) AS smart_meters
   MATCH ()-[r]->()
-  RETURN substations, transformers, smart_meters, count(r) AS relationships;
+  RETURN grid_supply_points, substations, transformers, smart_meters, count(r) AS relationships;
   "
 ```
 
 Expected result:
 
 ```text
+grid_supply_points = 1
 substations = 10
 transformers = 40
 smart_meters = 200
@@ -319,13 +321,19 @@ curl -s "http://localhost:8000/sensors/SENSOR_001/readings?day=2026-06-01&limit=
 
 Expected result: five readings for `SENSOR_001`, with `bucket_day` equal to `2026-06-01`.
 
-Test the bucketed cross-network query table:
+Test the network-wide recent readings endpoint:
+
+```bash
+curl -s "http://localhost:8000/sensors/readings/network-recent?from_time=2026-06-01T00:00:00Z&to_time=2026-06-01T00:01:00Z&limit=20" | python3 -m json.tool
+```
+
+Expected result: up to 20 recent readings from the bucketed sensor table, gathered by querying all configured bucket shards for the selected time window and merging the results in the API layer.
+
+Optionally, to test the bucketed single-shard query table:
 
 ```bash
 curl -s "http://localhost:8000/sensors/readings/by-bucket?bucket_start=2026-06-01T00:00:00Z&shard=0&limit=5" | python3 -m json.tool
 ```
-
-Expected result: five readings from the bucketed sensor table.
 
 ### 17. Test Neo4j-backed graph endpoints
 

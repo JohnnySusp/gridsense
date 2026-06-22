@@ -1,6 +1,7 @@
 import math
 import os
 import uuid
+from zlib import crc32
 from datetime import datetime, timedelta, timezone
 from typing import Iterable, Iterator, List, Tuple
 
@@ -10,7 +11,7 @@ from cassandra.concurrent import execute_concurrent_with_args
 
 SENSOR_COUNT = 20
 READINGS_PER_SENSOR = 2_500
-SHARD_COUNT = 8
+SHARD_COUNT = 16
 BASE_TIME = datetime(2026, 6, 1, 0, 0, 0, tzinfo=timezone.utc)
 CHUNK_SIZE = 1_000
 CONCURRENCY = 100
@@ -56,6 +57,10 @@ def floor_to_minute(dt: datetime) -> datetime:
     return dt.replace(second=0, microsecond=0)
 
 
+def sensor_shard(sensor_id: str) -> int:
+    return crc32(sensor_id.encode("utf-8")) % SHARD_COUNT
+
+
 def generate_readings() -> Iterator[Tuple[tuple, tuple]]:
     for sensor_idx in range(1, SENSOR_COUNT + 1):
         sensor_id = f"SENSOR_{sensor_idx:03d}"
@@ -73,7 +78,7 @@ def generate_readings() -> Iterator[Tuple[tuple, tuple]]:
 
             bucket_day = reading_time.date()
             bucket_start = floor_to_minute(reading_time)
-            shard = (sensor_idx - 1) % SHARD_COUNT
+            shard = sensor_shard(sensor_id)
 
             sensor_readings_args = (
                 sensor_id,

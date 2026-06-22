@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import json
 from datetime import date, datetime, timedelta, timezone
 from statistics import mean
@@ -26,6 +27,7 @@ router = APIRouter(prefix="/sensors", tags=["Sensors"])
 
 SUMMARY_CACHE_TTL_SECONDS = 30
 SUMMARY_CACHE_KEY_TEMPLATE = "gridsense:sensors:{sensor_id}:summary"
+BUCKET_SHARD_COUNT = 16
 
 
 def _utc_now() -> datetime:
@@ -38,11 +40,11 @@ def _as_utc(value: datetime) -> datetime:
     return value.astimezone(timezone.utc)
 
 
-def _hour_bucket(value: datetime) -> datetime:
-    return _as_utc(value).replace(minute=0, second=0, microsecond=0)
+def _minute_bucket(value: datetime) -> datetime:
+    return _as_utc(value).replace(second=0, microsecond=0)
 
 
-def _sensor_shard(sensor_id: str, shards: int = 16) -> int:
+def _sensor_shard(sensor_id: str, shards: int = BUCKET_SHARD_COUNT) -> int:
     return crc32(sensor_id.encode("utf-8")) % shards
 
 
@@ -67,6 +69,42 @@ def _summary_cache_key(sensor_id: str) -> str:
     return SUMMARY_CACHE_KEY_TEMPLATE.format(sensor_id=sensor_id)
 
 
+def _bucket_starts_between(from_time: datetime, to_time: datetime) -> list[datetime]:
+    buckets: list[datetime] = []
+    current = _minute_bucket(from_time)
+    final = _minute_bucket(to_time)
+
+    while current <= final:
+        buckets.append(current)
+        current = current + timedelta(minutes=1)
+
+    return buckets
+
+
+async def _read_bucket_shard_window(
+    cassandra: CassandraStore,
+    bucket_start: datetime,
+    shard: int,
+    from_time: datetime,
+    to_time: datetime,
+    limit: int,
+) -> list[dict[str, Any]]:
+    rows = await cassandra.execute(
+        """
+        SELECT bucket_start, shard, sensor_id, sensor_type, reading_time, reading_id,
+               voltage, current, power_factor, temperature, quality_flag
+        FROM sensor_readings_by_bucket
+        WHERE bucket_start = %s
+          AND shard = %s
+          AND reading_time >= %s
+          AND reading_time < %s
+        LIMIT %s
+        """,
+        (bucket_start, shard, from_time, to_time, limit),
+    )
+    return [normalize_cassandra_row(row) for row in rows]
+
+
 async def _store_single_reading(
     payload: SensorReadingCreate,
     cassandra: CassandraStore,
@@ -74,7 +112,7 @@ async def _store_single_reading(
     reading_time = _as_utc(payload.reading_time or _utc_now())
     reading_id = uuid1()
     bucket_day = reading_time.date()
-    bucket_start = _hour_bucket(reading_time)
+    bucket_start = _minute_bucket(reading_time)
     shard = _sensor_shard(payload.sensor_id)
 
     await cassandra.execute(
@@ -278,11 +316,11 @@ async def sensor_summary(
 @router.get(
     "/readings/by-bucket",
     response_model=list[TimeBucketReading],
-    summary="Read a global time bucket shard for dashboard-style scans",
+    summary="Read one global time-bucket shard for dashboard-style scans",
 )
 async def list_bucket_readings(
-    bucket_start: Annotated[datetime, Query(description="Hour bucket start, e.g. 2026-06-05T13:00:00Z")],
-    shard: Annotated[int, Query(ge=0, le=15)],
+    bucket_start: Annotated[datetime, Query(description="Minute bucket start, e.g. 2026-06-01T00:00:00Z")],
+    shard: Annotated[int, Query(ge=0, le=BUCKET_SHARD_COUNT - 1)],
     cassandra: Annotated[CassandraStore, Depends(get_cassandra)],
     limit: Annotated[int, Query(ge=1, le=500)] = 100,
 ) -> list[dict[str, Any]]:
@@ -297,6 +335,44 @@ async def list_bucket_readings(
         (bucket_start, shard, limit),
     )
     return [normalize_cassandra_row(row) for row in rows]
+
+
+@router.get(
+    "/readings/network-recent",
+    response_model=list[TimeBucketReading],
+    summary="Read recent network-wide sensor readings across all Cassandra bucket shards",
+)
+async def list_network_recent_readings(
+    cassandra: Annotated[CassandraStore, Depends(get_cassandra)],
+    seconds: Annotated[int, Query(ge=1, le=3600, description="Relative lookback window when from_time is omitted")] = 60,
+    from_time: Annotated[datetime | None, Query(description="Optional explicit start time, useful for seeded data tests")] = None,
+    to_time: Annotated[datetime | None, Query(description="Optional explicit end time, useful for seeded data tests")] = None,
+    limit: Annotated[int, Query(ge=1, le=5000, description="Maximum merged rows returned after fan-out")] = 1000,
+    limit_per_shard: Annotated[int, Query(ge=1, le=500, description="Maximum rows read from each bucket/shard partition")] = 200,
+) -> list[dict[str, Any]]:
+    end = _as_utc(to_time or _utc_now())
+    start = _as_utc(from_time) if from_time is not None else end - timedelta(seconds=seconds)
+
+    if start >= end:
+        return []
+
+    bucket_starts = _bucket_starts_between(start, end)
+    tasks = [
+        _read_bucket_shard_window(
+            cassandra=cassandra,
+            bucket_start=bucket_start,
+            shard=shard,
+            from_time=start,
+            to_time=end,
+            limit=limit_per_shard,
+        )
+        for bucket_start in bucket_starts
+        for shard in range(BUCKET_SHARD_COUNT)
+    ]
+
+    shard_results = await asyncio.gather(*tasks)
+    rows = [row for shard_rows in shard_results for row in shard_rows]
+    return _latest_first(rows)[:limit]
 
 
 @router.post(
