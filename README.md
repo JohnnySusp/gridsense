@@ -107,8 +107,9 @@ docker compose ps
 Expected result:
 
 * Cassandra, MongoDB, Neo4j, PostgreSQL, and Redis are healthy.
-* The API container is running or healthy.
 * `cassandra-init` has exited successfully.
+* `seed` has exited successfully.
+* The API container is running or healthy.
 
 Optionally, you can check the API startup logs:
 
@@ -128,7 +129,10 @@ cache:6379 is reachable
 Application startup complete.
 ```
 
-### 6. Check API health before seeding
+### 6. Check API health after automatic seeding
+
+The `seed` service runs automatically during `docker compose up --build -d`.
+It waits for Cassandra, Neo4j, MongoDB, PostgreSQL, Redis, and the Cassandra schema initialisation step, runs `python scripts/seed.py`, and then exits successfully. The API starts after this seed step completes.
 
 ```bash
 curl -s http://localhost:8000/health | python3 -m json.tool
@@ -143,15 +147,13 @@ Expected result:
 }
 ```
 
-### 7. Seed all databases
+### 7. Rerun seeding to confirm idempotence
 
-Run the seed orchestrator:
+Manual seeding is not required for normal startup. To verify that the seed script is idempotent, you can rerun the one-shot seed service:
 
 ```bash
-docker compose exec api python scripts/seed.py
+docker compose run --rm seed
 ```
-
-The command above can be run a second time to confirm idempotence.
 
 The second run should not increase the logical dataset size.
 
