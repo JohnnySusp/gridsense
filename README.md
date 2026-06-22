@@ -265,7 +265,7 @@ substation = 10
 transformer = 40
 ```
 
-The MongoDB catalogue mirrors the seeded Neo4j equipment assets for substations, transformers, and smart meters. For example, the Neo4j node with `node_id = "SM_001"` corresponds to the MongoDB equipment document with `asset_id = "SM_001"`. The `SM_001` example should include manufacturer/model data and flexible smart-meter metadata such as firmware, rated voltage, communication details, and non-standard telemetry fields.
+The MongoDB catalogue mirrors the seeded Neo4j equipment assets for the grid supply point, substations, transformers, and smart meters. For example, the Neo4j node with `node_id = "SM_001"` corresponds to the MongoDB equipment document with `asset_id = "SM_001"`. The `SM_001` example should include manufacturer/model data and flexible smart-meter metadata such as firmware, rated voltage, communication details, and non-standard telemetry fields.
 
 ### 12. Verify PostgreSQL billing data
 
@@ -372,7 +372,7 @@ Expected result:
 * `nodes/SS_001` returns the substation node.
 * `meters/SM_001/upstream` returns a path from the grid supply point to the smart meter.
 
-The graph endpoints return topology identifiers. When a returned node represents an equipment asset such as a substation, transformer, or smart meter, the same value can be used as `/equipment/{asset_id}` to retrieve its full MongoDB catalogue document.
+When a returned node represents an equipment asset such as a grid supply point, substation, transformer, or smart meter, the same value can be used as `/equipment/{asset_id}` to retrieve its full MongoDB catalogue document.
 
 ### 18. Test PostgreSQL-backed billing endpoints
 

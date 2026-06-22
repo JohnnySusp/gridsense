@@ -7,7 +7,9 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class EquipmentBase(BaseModel):
-    asset_id: str = Field(..., min_length=1, examples=["TX_001_A"])
+    model_config = ConfigDict(extra="allow")
+
+    asset_id: str = Field(..., min_length=1, examples=["TX_001"])
     equipment_type: str = Field(..., min_length=1, examples=["transformer"])
     manufacturer: str | None = Field(default=None, examples=["ABB"])
     model: str | None = Field(default=None, examples=["ONAN-400"])
@@ -22,6 +24,8 @@ class EquipmentCreate(EquipmentBase):
 
 
 class EquipmentUpdate(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
     equipment_type: str | None = None
     manufacturer: str | None = None
     model: str | None = None
@@ -33,4 +37,5 @@ class EquipmentUpdate(BaseModel):
 
 class EquipmentOut(EquipmentBase):
     id: str | None = None
-    model_config = ConfigDict(from_attributes=True)
+
+    model_config = ConfigDict(from_attributes=True, extra="allow")
