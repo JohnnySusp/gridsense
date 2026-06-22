@@ -35,6 +35,36 @@ def build_documents() -> list[dict]:
     now = datetime(2026, 6, 1, 0, 0, 0, tzinfo=timezone.utc)
     docs: list[dict] = []
 
+    # 1 grid-supply-point document, matching Neo4j GSP_001.
+    docs.append({
+        "asset_id": "GSP_001",
+        "equipment_type": "grid_supply_point",
+        "name": "North Grid Supply Point",
+        "status": "ACTIVE",
+        "voltage_level_kV": "132/33",
+        "maximum_import_capacity_MVA": 120,
+        "firm_capacity_MVA": 90,
+        "operator": "Regional Power Authority",
+        "grid_connection_reference": "GCP-NORTH-001",
+        "scada_id": "SCADA_GSP_001",
+        "protection_scheme": {
+            "primary": "distance_protection",
+            "backup": "overcurrent",
+            "auto_reclose_enabled": True
+        },
+        "metering": {
+            "metering_point_id": "MPAN-GSP-001",
+            "settlement_class": "bulk_supply",
+            "telemetry_interval_seconds": 60
+        },
+        "location": {
+            "region": "North",
+            "district": "D1"
+        },
+        "created_at": now,
+        "updated_at": now
+    })
+
     # 10 substation documents.
     for i in range(1, 11):
         docs.append({
@@ -64,12 +94,12 @@ def build_documents() -> list[dict]:
             "updated_at": now
         })
 
-    # 10 transformer documents.
-    for i in range(1, 11):
+    # 40 transformer documents, matching Neo4j TX_001 ... TX_040.
+    for i in range(1, 41):
         docs.append({
             "asset_id": f"TX_{i:03d}",
             "equipment_type": "transformer",
-            "substation_id": f"SS_{((i - 1) % 10) + 1:03d}",
+            "substation_id": f"SS_{((i - 1) // 4) + 1:03d}",
             "manufacturer": ["ABB", "Eaton", "Siemens", "Hitachi Energy"][i % 4],
             "model": f"ONAN-{250 + i * 50}",
             "rating_kva": 250 + i * 50,
@@ -94,16 +124,26 @@ def build_documents() -> list[dict]:
             "updated_at": now
         })
 
-    # 10 smart-meter documents with 40 non-standard telemetry field definitions.
-    for i in range(1, 11):
+    # 200 smart-meter documents, matching Neo4j SM_001 ... SM_200.
+    for i in range(1, 201):
         vendor = ["LandisGyr", "Itron", "Kamstrup", "Elster"][i % 4]
+        manufacturer = (
+            "VoltEdge" if i % 3 == 0
+            else "GridMeterCo" if i % 3 == 1
+            else "AmpereWorks"
+        )
+        model = (
+            "VE-300" if i % 3 == 0
+            else "GMC-200" if i % 3 == 1
+            else "AW-100"
+        )
         docs.append({
             "asset_id": f"SM_{i:03d}",
             "equipment_type": "smart_meter",
             "meter_id": f"SM_{i:03d}",
             "premise_id": f"PREM_{i:04d}",
-            "manufacturer": vendor,
-            "model": f"{vendor}-GX-{100 + i}",
+            "manufacturer": manufacturer,
+            "model": model,
             "firmware_version": f"3.{i % 4}.{i}",
             "rated_voltage": 230 + (i % 3) * 5,
             "phase": "single" if i % 3 else "three",

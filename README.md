@@ -11,7 +11,7 @@ The project follows a **polyglot persistence** design. Instead of forcing all da
 | `api`           | FastAPI / Python | REST gateway and application logic                                      |
 | `timeseries-db` | Apache Cassandra | Sensor readings and relay event logs                                    |
 | `graph-db`      | Neo4j            | Grid topology, upstream paths, and fault-impact traversal               |
-| `catalog-db`    | MongoDB          | Equipment catalogue with flexible manufacturer-specific metadata        |
+| `catalog-db`    | MongoDB          | Equipment catalogue with specifications for the assets of the topology  |
 | `billing-db`    | PostgreSQL       | Consumer accounts, invoices, and tariff rules requiring ACID guarantees |
 | `cache`         | Redis            | Short-lived dashboard/cache data and alert support                      |
 
@@ -20,7 +20,7 @@ The main design decision of GridSense is that it should not be implemented as a 
 Thus, the workload combines several access patterns that pull in different directions:
 * Sensor readings are write-heavy time-series data. Cassandra is used because the schema can be partitioned by sensor and time bucket, matching high-ingestion workloads and predictable time-window reads.
 * Grid topology is connected data. Neo4j is used because fault-impact analysis requires traversing relationships between supply points, substations, transformers, and smart meters.
-* Equipment metadata is heterogeneous. MongoDB is used because smart meters, transformers, and substations may have different fields depending on model, manufacturer, and firmware generation.
+* Equipment metadata is heterogeneous. MongoDB is used to store information related to specifications, and because smart meters, transformers, substations and grid supply points may have different fields depending on model, manufacturer, and firmware generation.
 * Billing records require strong consistency. PostgreSQL is used for accounts, invoices, tariff rules, and balances because incorrect billing has regulatory and financial consequences.
 * Dashboard and alert data can be short-lived and frequently read. Redis is used for fast cache-style access and alert support.
 
@@ -258,13 +258,14 @@ docker compose exec catalog-db mongosh \
 Expected result:
 
 ```text
-total = 30
-smart_meter = 10
+total = 251
+grid_supply_point = 1
+smart_meter = 200
 substation = 10
-transformer = 10
+transformer = 40
 ```
 
-The `SM_001` example should include flexible smart-meter metadata.
+The MongoDB catalogue mirrors the seeded Neo4j equipment assets for substations, transformers, and smart meters. For example, the Neo4j node with `node_id = "SM_001"` corresponds to the MongoDB equipment document with `asset_id = "SM_001"`. The `SM_001` example should include manufacturer/model data and flexible smart-meter metadata such as firmware, rated voltage, communication details, and non-standard telemetry fields.
 
 ### 12. Verify PostgreSQL billing data
 
@@ -303,13 +304,33 @@ PONG
 curl -s http://localhost:8000/metrics | head -30
 ```
 
-### 15. Test MongoDB-backed equipment endpoint
+### 15. Test MongoDB-backed equipment endpoints
+
+Test one document for each equipment/topology type:
+
+```bash
+curl -s http://localhost:8000/equipment/GSP_001 | python3 -m json.tool
+```
+
+Expected result: one grid-supply-point catalogue document with `asset_id` equal to `GSP_001`. This corresponds to the Neo4j `GridSupplyPoint` node with `node_id` equal to `GSP_001`.
+
+```bash
+curl -s http://localhost:8000/equipment/SS_001 | python3 -m json.tool
+```
+
+Expected result: one substation catalogue document with `asset_id` equal to `SS_001`. This corresponds to the Neo4j `Substation` node with `node_id` equal to `SS_001`.
+
+```bash
+curl -s http://localhost:8000/equipment/TX_001 | python3 -m json.tool
+```
+
+Expected result: one transformer equipment document with `asset_id` equal to `TX_001`. This corresponds to the Neo4j `Transformer` node with `node_id` equal to `TX_001`.
 
 ```bash
 curl -s http://localhost:8000/equipment/SM_001 | python3 -m json.tool
 ```
 
-Expected result: one smart-meter equipment document with `asset_id` equal to `SM_001`.
+Expected result: one smart-meter equipment document with `asset_id` equal to `SM_001`. This corresponds to the Neo4j `SmartMeter` node with `node_id` equal to `SM_001`.
 
 ### 16. Test Cassandra-backed sensor endpoints
 
@@ -351,6 +372,8 @@ Expected result:
 * `nodes/SS_001` returns the substation node.
 * `meters/SM_001/upstream` returns a path from the grid supply point to the smart meter.
 
+The graph endpoints return topology identifiers. When a returned node represents an equipment asset such as a substation, transformer, or smart meter, the same value can be used as `/equipment/{asset_id}` to retrieve its full MongoDB catalogue document.
+
 ### 18. Test PostgreSQL-backed billing endpoints
 
 ```bash
@@ -370,7 +393,7 @@ curl -s http://localhost:8000/alerts/active | python3 -m json.tool
 curl -s http://localhost:8000/alerts/recent | python3 -m json.tool
 ```
 
-Expected result: valid JSON arrays. Empty arrays are acceptable if no alerts have been published.
+Expected result: JSON arrays. If they are empty, it means that no alerts have been published.
 
 ### 20. Check Prometheus metrics after endpoint traffic
 

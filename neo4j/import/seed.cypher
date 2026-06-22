@@ -108,16 +108,6 @@ SET
     WHEN i % 5 = 0 THEN "commercial"
     ELSE "residential"
   END,
-  m.manufacturer = CASE
-    WHEN i % 3 = 0 THEN "VoltEdge"
-    WHEN i % 3 = 1 THEN "GridMeterCo"
-    ELSE "AmpereWorks"
-  END,
-  m.model = CASE
-    WHEN i % 3 = 0 THEN "VE-300"
-    WHEN i % 3 = 1 THEN "GMC-200"
-    ELSE "AW-100"
-  END,
   m.status = "ACTIVE",
   m.asset_class = "smart_meter"
 MERGE (t)-[r:CONNECTS_TO {service_line_id: "SL_" + right("0000" + toString(i), 4)}]->(m)
