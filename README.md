@@ -468,6 +468,8 @@ This benchmark measures the latency of the fault-impact traversal endpoint while
 
 ```bash
 docker compose exec api python scripts/benchmark_graph_depth.py \
+  --node-id GSP_001 \
+  --endpoint-template "/grid/fault-impact/{node_id}?limit=250" \
   --iterations 30 \
   --warmup 5 \
   --output-dir results

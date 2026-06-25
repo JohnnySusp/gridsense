@@ -1,4 +1,4 @@
 query,mongo_mean_ms,postgres_jsonb_mean_ms,mongo_result_count,postgres_result_count
-firmware_version starts with 3.,1.3115,1.4359,10,10
-smart_meter rated_voltage > 230,1.0459,0.9555,7,7
-count grouped by type,0.7026,0.1651,3,3
+firmware_version starts with 3.,1.0076,1.8265,25,25
+smart_meter rated_voltage > 230,0.8289,1.2076,18,18
+count grouped by type,0.2905,0.0376,4,4

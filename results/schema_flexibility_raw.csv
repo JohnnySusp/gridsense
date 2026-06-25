@@ -1,61 +1,61 @@
 query,database,run,latency_ms,result_count
-firmware_version starts with 3.,MongoDB,1,1.5431,10
-firmware_version starts with 3.,MongoDB,2,1.7697,10
-firmware_version starts with 3.,MongoDB,3,1.3374,10
-firmware_version starts with 3.,MongoDB,4,1.4389,10
-firmware_version starts with 3.,MongoDB,5,1.2007,10
-firmware_version starts with 3.,MongoDB,6,1.1772,10
-firmware_version starts with 3.,MongoDB,7,1.097,10
-firmware_version starts with 3.,MongoDB,8,1.1931,10
-firmware_version starts with 3.,MongoDB,9,1.1678,10
-firmware_version starts with 3.,MongoDB,10,1.1899,10
-firmware_version starts with 3.,PostgreSQL JSONB,1,1.475,10
-firmware_version starts with 3.,PostgreSQL JSONB,2,2.4612,10
-firmware_version starts with 3.,PostgreSQL JSONB,3,1.5363,10
-firmware_version starts with 3.,PostgreSQL JSONB,4,1.2106,10
-firmware_version starts with 3.,PostgreSQL JSONB,5,1.3685,10
-firmware_version starts with 3.,PostgreSQL JSONB,6,1.3712,10
-firmware_version starts with 3.,PostgreSQL JSONB,7,1.277,10
-firmware_version starts with 3.,PostgreSQL JSONB,8,1.2391,10
-firmware_version starts with 3.,PostgreSQL JSONB,9,1.2023,10
-firmware_version starts with 3.,PostgreSQL JSONB,10,1.2176,10
-smart_meter rated_voltage > 230,MongoDB,1,0.8673,7
-smart_meter rated_voltage > 230,MongoDB,2,0.978,7
-smart_meter rated_voltage > 230,MongoDB,3,0.8438,7
-smart_meter rated_voltage > 230,MongoDB,4,1.3318,7
-smart_meter rated_voltage > 230,MongoDB,5,1.1384,7
-smart_meter rated_voltage > 230,MongoDB,6,1.0125,7
-smart_meter rated_voltage > 230,MongoDB,7,1.0194,7
-smart_meter rated_voltage > 230,MongoDB,8,1.018,7
-smart_meter rated_voltage > 230,MongoDB,9,1.1301,7
-smart_meter rated_voltage > 230,MongoDB,10,1.1195,7
-smart_meter rated_voltage > 230,PostgreSQL JSONB,1,0.8973,7
-smart_meter rated_voltage > 230,PostgreSQL JSONB,2,0.8981,7
-smart_meter rated_voltage > 230,PostgreSQL JSONB,3,1.1363,7
-smart_meter rated_voltage > 230,PostgreSQL JSONB,4,0.897,7
-smart_meter rated_voltage > 230,PostgreSQL JSONB,5,0.8732,7
-smart_meter rated_voltage > 230,PostgreSQL JSONB,6,0.876,7
-smart_meter rated_voltage > 230,PostgreSQL JSONB,7,1.1472,7
-smart_meter rated_voltage > 230,PostgreSQL JSONB,8,0.8928,7
-smart_meter rated_voltage > 230,PostgreSQL JSONB,9,0.8449,7
-smart_meter rated_voltage > 230,PostgreSQL JSONB,10,1.0926,7
-count grouped by type,MongoDB,1,1.0047,3
-count grouped by type,MongoDB,2,0.86,3
-count grouped by type,MongoDB,3,0.7004,3
-count grouped by type,MongoDB,4,0.4044,3
-count grouped by type,MongoDB,5,0.3685,3
-count grouped by type,MongoDB,6,0.8913,3
-count grouped by type,MongoDB,7,0.7258,3
-count grouped by type,MongoDB,8,0.6832,3
-count grouped by type,MongoDB,9,0.6793,3
-count grouped by type,MongoDB,10,0.7081,3
-count grouped by type,PostgreSQL JSONB,1,0.1734,3
-count grouped by type,PostgreSQL JSONB,2,0.146,3
-count grouped by type,PostgreSQL JSONB,3,0.19,3
-count grouped by type,PostgreSQL JSONB,4,0.2998,3
-count grouped by type,PostgreSQL JSONB,5,0.1739,3
-count grouped by type,PostgreSQL JSONB,6,0.1447,3
-count grouped by type,PostgreSQL JSONB,7,0.1326,3
-count grouped by type,PostgreSQL JSONB,8,0.1342,3
-count grouped by type,PostgreSQL JSONB,9,0.1302,3
-count grouped by type,PostgreSQL JSONB,10,0.1261,3
+firmware_version starts with 3.,MongoDB,1,1.3051,25
+firmware_version starts with 3.,MongoDB,2,1.3954,25
+firmware_version starts with 3.,MongoDB,3,1.1129,25
+firmware_version starts with 3.,MongoDB,4,1.0373,25
+firmware_version starts with 3.,MongoDB,5,0.9236,25
+firmware_version starts with 3.,MongoDB,6,0.878,25
+firmware_version starts with 3.,MongoDB,7,0.8545,25
+firmware_version starts with 3.,MongoDB,8,0.8823,25
+firmware_version starts with 3.,MongoDB,9,0.8383,25
+firmware_version starts with 3.,MongoDB,10,0.8486,25
+firmware_version starts with 3.,PostgreSQL JSONB,1,1.3344,25
+firmware_version starts with 3.,PostgreSQL JSONB,2,1.3876,25
+firmware_version starts with 3.,PostgreSQL JSONB,3,1.3743,25
+firmware_version starts with 3.,PostgreSQL JSONB,4,1.377,25
+firmware_version starts with 3.,PostgreSQL JSONB,5,1.3795,25
+firmware_version starts with 3.,PostgreSQL JSONB,6,1.3851,25
+firmware_version starts with 3.,PostgreSQL JSONB,7,5.6285,25
+firmware_version starts with 3.,PostgreSQL JSONB,8,1.5212,25
+firmware_version starts with 3.,PostgreSQL JSONB,9,1.4484,25
+firmware_version starts with 3.,PostgreSQL JSONB,10,1.4287,25
+smart_meter rated_voltage > 230,MongoDB,1,0.8398,18
+smart_meter rated_voltage > 230,MongoDB,2,0.9002,18
+smart_meter rated_voltage > 230,MongoDB,3,0.9298,18
+smart_meter rated_voltage > 230,MongoDB,4,0.8131,18
+smart_meter rated_voltage > 230,MongoDB,5,0.7056,18
+smart_meter rated_voltage > 230,MongoDB,6,0.7552,18
+smart_meter rated_voltage > 230,MongoDB,7,0.7278,18
+smart_meter rated_voltage > 230,MongoDB,8,0.831,18
+smart_meter rated_voltage > 230,MongoDB,9,0.9441,18
+smart_meter rated_voltage > 230,MongoDB,10,0.8422,18
+smart_meter rated_voltage > 230,PostgreSQL JSONB,1,1.1851,18
+smart_meter rated_voltage > 230,PostgreSQL JSONB,2,1.1975,18
+smart_meter rated_voltage > 230,PostgreSQL JSONB,3,1.2068,18
+smart_meter rated_voltage > 230,PostgreSQL JSONB,4,1.1947,18
+smart_meter rated_voltage > 230,PostgreSQL JSONB,5,1.2227,18
+smart_meter rated_voltage > 230,PostgreSQL JSONB,6,1.2062,18
+smart_meter rated_voltage > 230,PostgreSQL JSONB,7,1.2244,18
+smart_meter rated_voltage > 230,PostgreSQL JSONB,8,1.2214,18
+smart_meter rated_voltage > 230,PostgreSQL JSONB,9,1.2075,18
+smart_meter rated_voltage > 230,PostgreSQL JSONB,10,1.2102,18
+count grouped by type,MongoDB,1,0.419,4
+count grouped by type,MongoDB,2,0.3691,4
+count grouped by type,MongoDB,3,0.424,4
+count grouped by type,MongoDB,4,0.5031,4
+count grouped by type,MongoDB,5,0.3352,4
+count grouped by type,MongoDB,6,0.2132,4
+count grouped by type,MongoDB,7,0.1739,4
+count grouped by type,MongoDB,8,0.1596,4
+count grouped by type,MongoDB,9,0.1546,4
+count grouped by type,MongoDB,10,0.1529,4
+count grouped by type,PostgreSQL JSONB,1,0.043,4
+count grouped by type,PostgreSQL JSONB,2,0.0408,4
+count grouped by type,PostgreSQL JSONB,3,0.0371,4
+count grouped by type,PostgreSQL JSONB,4,0.0368,4
+count grouped by type,PostgreSQL JSONB,5,0.0383,4
+count grouped by type,PostgreSQL JSONB,6,0.0362,4
+count grouped by type,PostgreSQL JSONB,7,0.0358,4
+count grouped by type,PostgreSQL JSONB,8,0.036,4
+count grouped by type,PostgreSQL JSONB,9,0.0362,4
+count grouped by type,PostgreSQL JSONB,10,0.0357,4

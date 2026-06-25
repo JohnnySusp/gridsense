@@ -9,6 +9,7 @@ import os
 import statistics
 import time
 from pathlib import Path
+import random
 
 from pymongo import MongoClient
 import psycopg2
@@ -74,16 +75,55 @@ def normalize_equipment(doc):
     }
 
 
-def load_source_records(mongo_db, source_collection, limit):
-    docs = list(mongo_db[source_collection].find({}).limit(limit))
+def load_source_records(mongo_db, source_collection, sample_size, sample_seed):
+    docs = list(mongo_db[source_collection].find({}))
 
-    if len(docs) < limit:
+    if not docs:
         raise RuntimeError(
-            f"Expected at least {limit} records in MongoDB collection "
-            f"'{source_collection}', but found {len(docs)}."
+            f"No records found in MongoDB collection '{source_collection}'."
         )
 
-    return [normalize_equipment(doc) for doc in docs]
+    records = [normalize_equipment(doc) for doc in docs]
+    records.sort(key=lambda record: record["equipment_id"])
+
+    if sample_size is None:
+        return records
+
+    if sample_size <= 0:
+        raise RuntimeError("--sample-size must be greater than zero.")
+
+    if sample_size > len(records):
+        raise RuntimeError(
+            f"Requested sample of {sample_size} records, but only "
+            f"{len(records)} records exist in '{source_collection}'."
+        )
+
+    rng = random.Random(sample_seed)
+
+    records_by_type = {}
+    for record in records:
+        records_by_type.setdefault(record["type"], []).append(record)
+
+    selected = []
+
+    # Ensure the sample includes every equipment type if possible.
+    for equipment_type in sorted(records_by_type):
+        if len(selected) >= sample_size:
+            break
+        selected.append(rng.choice(records_by_type[equipment_type]))
+
+    selected_ids = {record["equipment_id"] for record in selected}
+    remaining = [
+        record for record in records
+        if record["equipment_id"] not in selected_ids
+    ]
+
+    slots_left = sample_size - len(selected)
+    if slots_left > 0:
+        selected.extend(rng.sample(remaining, slots_left))
+
+    selected.sort(key=lambda record: record["equipment_id"])
+    return selected
 
 
 def reset_mongo_benchmark_collection(mongo_db, benchmark_collection, records):
@@ -165,6 +205,18 @@ def main():
         help="Existing MongoDB collection containing the seeded equipment records.",
     )
     parser.add_argument(
+        "--sample-size",
+        type=int,
+        default=30,
+        help="Number of source records to sample reproducibly for the benchmark.",
+    )
+    parser.add_argument(
+        "--sample-seed",
+        type=int,
+        default=42,
+        help="Random seed used for reproducible sampling.",
+    )
+    parser.add_argument(
         "--mongo-benchmark-collection",
         default="equipment_c4_benchmark",
     )
@@ -175,11 +227,6 @@ def main():
     parser.add_argument(
         "--postgres-table",
         default="equipment_c4_benchmark",
-    )
-    parser.add_argument(
-        "--limit",
-        type=int,
-        default=30,
     )
     parser.add_argument(
         "--runs",
@@ -208,11 +255,16 @@ def main():
     pg_conn = psycopg2.connect(pg_dsn)
     pg_conn.autocommit = False
 
-    print(f"Reading {args.limit} records from MongoDB collection '{args.source_collection}'...")
+    print(f"Reading records from MongoDB collection '{args.source_collection}'...")
     records = load_source_records(
         mongo_db=mongo_db,
         source_collection=args.source_collection,
-        limit=args.limit,
+        sample_size=args.sample_size,
+        sample_seed=args.sample_seed,
+    )
+    print(
+        f"Loaded {len(records)} normalized equipment records "
+        f"using sample_seed={args.sample_seed}."
     )
 
     print(f"Writing normalized benchmark records to MongoDB collection '{args.mongo_benchmark_collection}'...")
