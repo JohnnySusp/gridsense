@@ -186,6 +186,45 @@ def measure(fn, runs, warmup):
     return timings, last_result
 
 
+def format_float(value, digits=4):
+    return "n/a" if value is None else f"{float(value):.{digits}f}"
+
+
+def print_results(summary_rows):
+    headers = [
+        "Query",
+        "MongoDB ms",
+        "PostgreSQL JSONB ms",
+        "MongoDB rows",
+        "PostgreSQL rows",
+    ]
+
+    rows = [
+        [
+            row["query"],
+            format_float(row["mongo_mean_ms"], 4),
+            format_float(row["postgres_jsonb_mean_ms"], 4),
+            str(row["mongo_result_count"]),
+            str(row["postgres_result_count"]),
+        ]
+        for row in summary_rows
+    ]
+
+    widths = [len(header) for header in headers]
+    for row in rows:
+        for idx, cell in enumerate(row):
+            widths[idx] = max(widths[idx], len(cell))
+
+    def line(parts):
+        return " | ".join(part.ljust(widths[idx]) for idx, part in enumerate(parts))
+
+    print()
+    print(line(headers))
+    print("-+-".join("-" * width for width in widths))
+    for row in rows:
+        print(line(row))
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Benchmark MongoDB schema flexibility vs PostgreSQL JSONB."
@@ -433,17 +472,7 @@ def main():
     print(f"\nWrote raw results: {raw_path}")
     print(f"Wrote summary results: {summary_path}")
 
-    print("\nMarkdown summary table:\n")
-    print("| Query | MongoDB mean (ms) | PostgreSQL JSONB mean (ms) | MongoDB rows | PostgreSQL rows |")
-    print("|---|---:|---:|---:|---:|")
-    for row in summary_rows:
-        print(
-            f"| {row['query']} | "
-            f"{row['mongo_mean_ms']} | "
-            f"{row['postgres_jsonb_mean_ms']} | "
-            f"{row['mongo_result_count']} | "
-            f"{row['postgres_result_count']} |"
-        )
+    print_results(summary_rows)
 
     pg_conn.close()
     mongo_client.close()

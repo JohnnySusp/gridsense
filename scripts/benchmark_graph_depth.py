@@ -167,6 +167,64 @@ def extract_total_affected(payload):
 
     return None
 
+
+def format_ms(value):
+    if value is None:
+        return "-"
+    return f"{value:.3f}"
+
+
+def print_summary_board(summary_rows):
+    headers = [
+        "max_depth",
+        "affected nodes",
+        "median latency (ms)",
+        "P95 latency (ms)",
+    ]
+
+    rows = [
+        [
+            str(row["depth"]),
+            f"{row['total_affected']:,}",
+            format_ms(row["median_ms"]),
+            format_ms(row["p95_ms"]),
+        ]
+        for row in summary_rows
+    ]
+
+    widths = [
+        max(len(headers[column]), *(len(row[column]) for row in rows))
+        for column in range(len(headers))
+    ]
+
+    def border(left, middle, right):
+        return (
+            left
+            + middle.join("─" * (width + 2) for width in widths)
+            + right
+        )
+
+    def render_row(values):
+        return (
+            "│ "
+            + " │ ".join(
+                str(value).rjust(widths[index])
+                for index, value in enumerate(values)
+            )
+            + " │"
+        )
+
+    print("\nGraph depth latency summary\n")
+    print(border("┌", "┬", "┐"))
+    print(render_row(headers))
+    print(border("├", "┼", "┤"))
+
+    for row in rows:
+        print(render_row(row))
+
+    print(border("└", "┴", "┘"))
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Benchmark /grid/fault-impact/{node_id} latency by max_depth."
@@ -394,14 +452,7 @@ def main():
 
     maybe_write_chart(summary_rows, output_dir)
 
-    print("\nMarkdown summary table:\n")
-    print("| max_depth | affected nodes | median latency (ms) | P95 latency (ms) |")
-    print("|---:|---:|---:|---:|")
-    for row in summary_rows:
-        print(
-            f"| {row['depth']} | {row['total_affected']} | "
-            f"{row['median_ms']} | {row['p95_ms']} |"
-        )
+    print_summary_board(summary_rows)
 
 
 if __name__ == "__main__":
